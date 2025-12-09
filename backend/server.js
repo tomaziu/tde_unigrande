@@ -2,44 +2,38 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const { connect } = require("./db");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos do frontend
 const path = require("path");
 app.use(express.static(path.join(__dirname, "..", "public")));
-app.use(cors());
-app.use(express.json());
+
 let db = null;
 
-
-// Conectar ao banco MySQL
+// Conexão com BD
 (async () => {
   db = await connect();
 })();
 
-// Configuração para enviar email
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "thomazdemoraisnunes2021@gmail.com",         // coloque seu Gmail verdadeiro
-    pass: "zojq onpa tefq tzzi"      // aquela senha gerada pelo Google
-  },
-  logger: true,
-  debug: true
-});
+// ===================== CONFIG RESEND =====================
+const resend = new Resend("re_M6op3saN_MQw33Ry6ePpsfikaW52e17y3"); // 🔥 coloque sua API KEY aqui
 
-transporter.verify((err, success) => {
-  if (err) {
-    console.log("Erro no email:", err);
-  } else {
-    console.log("Servidor pronto para enviar emails!");
+// Detectar URL base para emails (Render ou Local)
+function baseURL(req) {
+  // Quando estiver no Render, usa a URL do Render
+  if (process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL;
   }
-});
+  // Localhost
+  return "http://localhost:8000";
+}
 
-// ==================== ROTA DE CADASTRO ====================
+// ==================== CADASTRO ====================
 app.post("/api/register", async (req, res) => {
   const { email, senha } = req.body;
 
@@ -47,7 +41,6 @@ app.post("/api/register", async (req, res) => {
     return res.status(400).json({ error: "Campos obrigatórios." });
 
   const senhaCriptografada = await bcrypt.hash(senha, 10);
-
   const tokenConfirmacao = Math.random().toString(36).substring(2);
 
   try {
@@ -56,28 +49,28 @@ app.post("/api/register", async (req, res) => {
       [email, senhaCriptografada, tokenConfirmacao]
     );
 
-    // Enviar o email de confirmação
-    const link = `http://localhost:8000/api/confirmar?token=${tokenConfirmacao}`;
+    const link = `${baseURL(req)}/api/confirmar?token=${tokenConfirmacao}`;
 
-    await transporter.sendMail({
-      from: "SEU_EMAIL@gmail.com",
+    // ===== Enviar email via Resend =====
+    await resend.emails.send({
+      from: "Projeto TDE <no-reply@yourdomain.com>",
       to: email,
       subject: "Confirme sua conta",
       html: `
         <h2>Bem-vindo!</h2>
-        <p>Clique no link abaixo para confirmar sua conta:</p>
-        <a href="${link}">Confirmar Conta</a>
+        <p>Clique abaixo para confirmar sua conta:</p>
+        <a href="${link}">${link}</a>
       `
     });
 
-    res.json({ message: "Usuário cadastrado! Verifique seu email." });
+    res.json({ message: "Cadastro realizado! Verifique seu email." });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Erro ao cadastrar." });
   }
 });
 
-// ==================== CONFIRMAR CONTA ====================
+// ==================== CONFIRMAR ====================
 app.get("/api/confirmar", async (req, res) => {
   const { token } = req.query;
 
@@ -94,7 +87,7 @@ app.get("/api/confirmar", async (req, res) => {
     [rows[0].id]
   );
 
-  res.send("<h2>Conta confirmada com sucesso! Você já pode fazer login.</h2>");
+  res.send("<h2>Conta confirmada com sucesso! Agora você já pode fazer login.</h2>");
 });
 
 // ==================== LOGIN ====================
@@ -112,7 +105,7 @@ app.post("/api/login", async (req, res) => {
   const usuario = usuarios[0];
 
   if (usuario.confirmado === 0)
-    return res.status(403).json({ error: "Confirme sua conta antes de logar." });
+    return res.status(403).json({ error: "Confirme seu email antes de logar." });
 
   const senhaOk = await bcrypt.compare(senha, usuario.senha);
 
@@ -125,12 +118,10 @@ app.post("/api/login", async (req, res) => {
     { expiresIn: "2h" }
   );
 
-  res.json({
-    message: "Login realizado!",
-    token
-  });
+  res.json({ message: "Login realizado!", token });
 });
 
+// ==================== RECUPERAR SENHA ====================
 app.post("/api/recuperar", async (req, res) => {
   const { email } = req.body;
 
@@ -149,14 +140,14 @@ app.post("/api/recuperar", async (req, res) => {
     [token, email]
   );
 
-  const link = `http://localhost:8000/resetar.html?token=${token}`;
+  const link = `${baseURL(req)}/resetar.html?token=${token}`;
 
-  await transporter.sendMail({
-    from: "SEU_EMAIL@gmail.com",
+  await resend.emails.send({
+    from: "Projeto TDE <no-reply@yourdomain.com>",
     to: email,
     subject: "Recuperação de Senha",
     html: `
-      <h2>Recuperar Senha</h2>
+      <h2>Recuperação de Senha</h2>
       <p>Clique no link abaixo para redefinir sua senha:</p>
       <a href="${link}">${link}</a>
     `
@@ -165,6 +156,7 @@ app.post("/api/recuperar", async (req, res) => {
   res.json({ message: "Email enviado! Verifique sua caixa de entrada." });
 });
 
+// ==================== RESETAR SENHA ====================
 app.post("/api/resetar", async (req, res) => {
   const { token, novaSenha } = req.body;
 
@@ -183,11 +175,9 @@ app.post("/api/resetar", async (req, res) => {
     [senhaCriptografada, rows[0].id]
   );
 
-  res.json({ message: "Senha alterada com sucesso!" });
+  res.json({ message: "Senha redefinida com sucesso!" });
 });
-
 
 // ==================== PORTA ====================
-app.listen(8000, () => {
-  console.log("Servidor rodando na porta 8000");
-});
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log("Servidor rodando na porta", PORT));
