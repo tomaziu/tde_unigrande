@@ -2,34 +2,35 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const { Resend } = require("resend");
 const { connect } = require("./db");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir arquivos do frontend
-const path = require("path");
+// Servir o frontend
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 let db = null;
 
-// Conexão com BD
+// Conectar ao BD
 (async () => {
   db = await connect();
+  console.log("Banco conectado!");
 })();
 
-// ===================== CONFIG RESEND =====================
-const resend = new Resend("re_M6op3saN_MQw33Ry6ePpsfikaW52e17y3"); // 🔥 coloque sua API KEY aqui
+// CONFIGURAÇÃO DO RESEND
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Detectar URL base para emails (Render ou Local)
+// Detectar URL base (Render ou Local)
 function baseURL(req) {
-  // Quando estiver no Render, usa a URL do Render
   if (process.env.RENDER_EXTERNAL_URL) {
     return process.env.RENDER_EXTERNAL_URL;
   }
-  // Localhost
   return "http://localhost:8000";
 }
 
@@ -51,9 +52,9 @@ app.post("/api/register", async (req, res) => {
 
     const link = `${baseURL(req)}/api/confirmar?token=${tokenConfirmacao}`;
 
-    // ===== Enviar email via Resend =====
+    // Enviar email usando Resend
     await resend.emails.send({
-      from: "Projeto TDE <no-reply@yourdomain.com>",
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Confirme sua conta",
       html: `
@@ -143,7 +144,7 @@ app.post("/api/recuperar", async (req, res) => {
   const link = `${baseURL(req)}/resetar.html?token=${token}`;
 
   await resend.emails.send({
-    from: "Projeto TDE <no-reply@yourdomain.com>",
+    from: "onboarding@resend.dev",
     to: email,
     subject: "Recuperação de Senha",
     html: `
