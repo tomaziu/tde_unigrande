@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendEmail(destino, assunto, conteudo) {
   try {
     const data = await resend.emails.send({
-      from: "noreply@seuprojeto.app", // domínio do Resend
+      from: "onboarding@resend.dev", // domínio do Resend
       to: destino,
       subject: assunto,
       html: conteudo
