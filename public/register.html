@@ -54,7 +54,7 @@
     <p id="retorno"></p>
 
     <p style="margin-top:15px;">
-        <a href="login.html" style="color: var(--low)">Já tenho conta</a>
+        <a href="index.html" style="color: var(--low)">Já tenho conta</a>
     </p>
 
 </div>
@@ -85,7 +85,7 @@ async function cadastrar() {
             retorno.style.color = "lightgreen";
 
             setTimeout(() => {
-                window.location.href = "login.html";
+                window.location.href = "index.html";
             }, 2000);
         } else {
             retorno.textContent = dados.error;
