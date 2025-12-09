@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redefinir Senha</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.form-container {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 25px;
+    background: var(--glass);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.form-container input {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.form-container button {
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="logo-unigrande" src="image/logo-unigrande-color-blue.webp" alt="Logo">
+  <h1>Redefinir Senha</h1>
+</header>
+
+<div class="form-container">
+
+    <h2>Nova Senha</h2>
+
+    <input type="password" id="senha" placeholder="Digite a nova senha">
+    <button class="btn-ok" onclick="resetarSenha()">Alterar senha</button>
+
+    <p id="retorno"></p>
+
+</div>
+
+<script>
+function getToken() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("token");
+}
+
+async function resetarSenha() {
+    const token = getToken();
+    const novaSenha = document.getElementById("senha").value;
+    const retorno = document.getElementById("retorno");
+
+    retorno.textContent = "Processando...";
+
+    const resp = await fetch("http://localhost:8000/api/resetar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, novaSenha })
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok) {
+        retorno.textContent = data.error || "Erro.";
+        retorno.style.color = "red";
+        return;
+    }
+
+    retorno.style.color = "lightgreen";
+    retorno.textContent = "Senha alterada com sucesso!";
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 1500);
+}
+</script>
+
+</body>
+</html>

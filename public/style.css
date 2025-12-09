@@ -1,0 +1,138 @@
+/* Paleta moderna */
+:root {
+  --bg1:#0d0d15; 
+  --bg2:#1b1b2e;
+  --card:#24243a;
+  --glass:rgba(255,255,255,0.06);
+  --muted:#bfbfd4;
+
+  --high:#ff4d4d;
+  --medium:#ffd11a;
+  --low:#4da6ff;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+/* Cabeçalho */
+header {
+  text-align: center;
+  padding: 35px 10px;
+  background: linear-gradient(145deg, #2b2b45, #1f1f33);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.4);
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 32px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+header .logo {
+  font-size: 48px;
+}
+
+/* Container */
+.container {
+  max-width: 930px;
+  margin: auto;
+  background: var(--glass);
+  padding: 25px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* inputs e selects */
+input, select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2d2d45;
+  color: white;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+/* Botões */
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: bold;
+}
+
+button:hover { transform: scale(1.05); }
+
+.btn-ok { background: #4caf50; color: white; }
+.btn-danger { background: #ff3c3c; color: white; }
+.btn-edit { background: #0099ff; color:white; }
+
+/* Flexbox */
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.categoria {
+  background: var(--card);
+  padding: 18px;
+  border-radius: 14px;
+  margin-top: 20px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  animation: fadeIn 0.4s;
+}
+
+.categoria h3 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarefa {
+  background:#31314d;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  animation: fadeIn 0.25s;
+}
+
+.tarefa strong { font-size: 15px; }
+
+.concluida {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.logo-unigrande {
+    width: 300px;
+    display: block;
+    margin: 15px auto;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(5px); }
+  to   { opacity:1; transform:translateY(0); }
+}

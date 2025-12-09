@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar Conta</title>
+
+<!-- Usa o mesmo CSS do index -->
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* Caixa central como o container do index */
+.form-container {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 25px;
+    background: var(--glass);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 20px;
+}
+
+.form-container input {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.form-container button {
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="logo-unigrande" src="image/logo-unigrande-color-blue.webp" alt="Logo Unigrande">
+  <h1>Criar Conta</h1>
+</header>
+
+<div class="form-container">
+
+    <h2>Cadastro</h2>
+
+    <input type="email" id="email" placeholder="Digite seu email">
+    <input type="password" id="senha" placeholder="Digite uma senha">
+
+    <button class="btn-ok" onclick="cadastrar()">Criar Conta</button>
+
+    <p id="retorno"></p>
+
+    <p style="margin-top:15px;">
+        <a href="login.html" style="color: var(--low)">Já tenho conta</a>
+    </p>
+
+</div>
+
+<script>
+async function cadastrar() {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    const retorno = document.getElementById("retorno");
+
+    if (!email || !senha) {
+        retorno.textContent = "Preencha todos os campos!";
+        retorno.style.color = "red";
+        return;
+    }
+
+    try {
+        const resposta = await fetch("http://localhost:8000/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            retorno.textContent = "Usuário cadastrado! Verifique seu email.";
+            retorno.style.color = "lightgreen";
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 2000);
+        } else {
+            retorno.textContent = dados.error;
+            retorno.style.color = "red";
+        }
+
+    } catch (err) {
+        retorno.textContent = "Erro ao conectar com servidor.";
+        retorno.style.color = "red";
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>
