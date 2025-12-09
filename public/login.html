@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.form-container {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 25px;
+    background: var(--glass);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 20px;
+}
+
+.form-container input {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.form-container button {
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="logo-unigrande" src="image/logo-unigrande-color-blue.webp" alt="Logo">
+  <h1>Login</h1>
+</header>
+
+<div class="form-container">
+
+    <h2>Entrar na Conta</h2>
+
+    <input type="email" id="email" placeholder="Digite seu email">
+    <input type="password" id="senha" placeholder="Digite sua senha">
+
+    <button class="btn-ok" onclick="logar()">Entrar</button>
+
+    <p id="retorno"></p>
+
+    <p style="margin-top:15px;">
+        <a href="register.html" style="color: var(--low)">Criar nova conta</a> |
+        <a href="recuperar.html" style="color: var(--medium)">Esqueci a senha</a>
+    </p>
+
+</div>
+
+<script>
+async function logar() {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    const retorno = document.getElementById("retorno");
+
+    if (!email || !senha) {
+        retorno.textContent = "Preencha todos os campos!";
+        retorno.style.color = "red";
+        return;
+    }
+
+    try {
+        const resposta = await fetch("http://localhost:8000/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            retorno.textContent = "Login realizado!";
+            retorno.style.color = "lightgreen";
+
+            localStorage.setItem("token", dados.token);
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1200);
+        } else {
+            retorno.textContent = dados.error;
+            retorno.style.color = "red";
+        }
+
+    } catch (err) {
+        retorno.textContent = "Erro ao conectar com servidor.";
+        retorno.style.color = "red";
+    }
+}
+</script>
+
+</body>
+</html>
