@@ -1,16 +1,22 @@
 const mysql = require("mysql2/promise");
 
 async function connect() {
-  const conn = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306
-  });
+  try {
+    const connection = await mysql.createConnection({
+      host: "bh36dfbstunvlbw8qstc-mysql.services.clever-cloud.com",
+      user: "uzs6cu1wlstbnaes",
+      password: "6tXiHRJMLSv9CaAoMOG3",
+      database: "bh36dfbstunvlbw8qstc",
+      port: 3306
+    });
 
-  console.log("MySQL conectado!");
-  return conn;
+    console.log("🟢 MySQL conectado com sucesso!");
+    return connection;
+
+  } catch (err) {
+    console.error("🔴 ERRO ao conectar no MySQL:", err);
+    throw err;
+  }
 }
 
 module.exports = { connect };
