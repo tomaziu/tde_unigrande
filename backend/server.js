@@ -12,6 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("ENV LIDO:", process.env.DB_HOST, process.env.DB_USER);
+
 // Servir o frontend
 app.use(express.static(path.join(__dirname, "..", "public")));
 
